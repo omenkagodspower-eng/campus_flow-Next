@@ -77,6 +77,12 @@ class TestCreateTicket(unittest.TestCase):
         with self.assertRaises(ValueError):
             create_ticket(0, "Wi-Fi problem", "Network", "low", 1)
 
+    def test_new_ticket_starts_with_empty_notes(self):
+        ticket = create_ticket(
+            1, "Wi-Fi problem", "Network", "low", 1
+        )
+        self.assertEqual(ticket["notes"], [])
+
     def test_rejects_non_integer_ticket_id(self):
         with self.assertRaises(ValueError):
             create_ticket("one", "Wi-Fi problem", "Network", "low", 1)

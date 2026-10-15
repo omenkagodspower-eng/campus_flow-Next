@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# CampusFlow ticket data (local runtime state)
+tickets.json
+
+# Local quiz explanations (personal learning note)
+learning-note.md
