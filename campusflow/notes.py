@@ -195,4 +195,3 @@ def get_notes(tickets, ticket_id):
         _notes_of(ticket),
         key=lambda note: int(note["note_id"][1:]),
     )
->>>>>>> 00eb4b05d4716ad1e847b52bf91de04f1d4aaeb3
