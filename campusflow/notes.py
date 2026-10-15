@@ -80,7 +80,6 @@ def add_note(ticket, author, message):
     notes.append(note)
 
     return note
-=======
 """Follow-up notes for tickets.
 
 CONTRACT (agreed interface with Engineer A, who owns the notes data layer):
