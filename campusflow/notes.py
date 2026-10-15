@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 def add_note(ticket, author, message):
     """Add a validated note to an open or in-progress ticket."""
 
