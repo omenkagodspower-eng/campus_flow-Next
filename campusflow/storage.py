@@ -2,7 +2,6 @@ import json
 import re
 from pathlib import Path
 
-<<<<<<< HEAD
 from campusflow.tickets import calculate_priority
 from campusflow.validation import (
     VALID_CATEGORIES,
@@ -16,7 +15,6 @@ from campusflow.validation import (
 def validate_tickets(tickets):
     """Validate an entire collection of tickets and their notes."""
 
-=======
 from campusflow.notes import NOTE_MAX_LENGTH, NOTE_MIN_LENGTH
 from campusflow.search import VALID_PRIORITIES
 from campusflow.tickets import calculate_priority, VALID_CATEGORIES
@@ -133,7 +131,6 @@ def _validate_ticket_record(ticket):
 
 def validate_tickets(tickets):
     """Validate that tickets form a list of unique, complete records."""
->>>>>>> 00eb4b05d4716ad1e847b52bf91de04f1d4aaeb3
     if not isinstance(tickets, list):
         raise ValueError("The tickets file must contain a JSON list.")
 
@@ -246,15 +243,13 @@ def save_tickets(tickets, filename="tickets.json"):
 
 
 def load_tickets(filename="tickets.json"):
-    """Load and validate tickets from a JSON file."""
+    """Load and validate tickets from a JSON file.
 
-<<<<<<< HEAD
-=======
+
     Return an empty list if the file does not exist.
     Raise a clear error if the JSON is malformed or invalid, so corrupted
     data is never handed to the rest of the application.
     """
->>>>>>> 00eb4b05d4716ad1e847b52bf91de04f1d4aaeb3
     path = Path(filename)
 
     if not path.exists():
