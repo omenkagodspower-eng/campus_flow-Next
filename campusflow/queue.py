@@ -7,7 +7,7 @@ PRIORITY_ORDER = {
 
 
 def get_work_queue(tickets):
-    """Return unresolved tickets ordered by priority and ticket ID."""
+    """Return open tickets ordered by priority and ticket ID."""
 
     if not isinstance(tickets, list):
         raise ValueError("Tickets must be provided as a list.")
@@ -31,14 +31,14 @@ def get_work_queue(tickets):
         if ticket.get("status") not in ("open", "in_progress", "resolved"):
             raise ValueError("Each ticket must have a valid status.")
 
-    unresolved_tickets = [
+    open_tickets = [
         ticket
         for ticket in tickets
-        if ticket["status"] != "resolved"
+        if ticket["status"] == "open"
     ]
 
     return sorted(
-        unresolved_tickets,
+        open_tickets,
         key=lambda ticket: (
             PRIORITY_ORDER[ticket["priority"]],
             ticket["id"],
