@@ -1,9 +1,10 @@
 PRIORITIES = ("critical", "high", "medium", "low")
 STATUSES = ("open", "in_progress", "resolved")
+CATEGORIES = ("Network", "Hardware", "Software", "Other")
 
 
 def generate_ticket_report(tickets):
-    """Generate a summary of tickets by status and priority."""
+    """Generate ticket statistics by status, priority, and category."""
 
     if not isinstance(tickets, list):
         raise ValueError("Tickets must be provided as a list.")
@@ -12,6 +13,10 @@ def generate_ticket_report(tickets):
         "total": len(tickets),
         "by_status": {status: 0 for status in STATUSES},
         "by_priority": {priority: 0 for priority in PRIORITIES},
+        "by_category": {category: 0 for category in CATEGORIES},
+        "unresolved": 0,
+        "resolved": 0,
+        "resolution_percentage": 0.0,
     }
 
     for ticket in tickets:
@@ -20,14 +25,27 @@ def generate_ticket_report(tickets):
 
         status = ticket.get("status")
         priority = ticket.get("priority")
+        category = ticket.get("category")
 
         if status not in STATUSES:
             raise ValueError("Each ticket must have a valid status.")
-
         if priority not in PRIORITIES:
             raise ValueError("Each ticket must have a valid priority.")
+        if category not in CATEGORIES:
+            raise ValueError("Each ticket must have a valid category.")
 
         report["by_status"][status] += 1
         report["by_priority"][priority] += 1
+        report["by_category"][category] += 1
+
+        if status == "resolved":
+            report["resolved"] += 1
+        else:
+            report["unresolved"] += 1
+
+    if report["total"] > 0:
+        report["resolution_percentage"] = (
+            report["resolved"] / report["total"]
+        ) * 100
 
     return report

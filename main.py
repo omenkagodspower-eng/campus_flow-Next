@@ -1,9 +1,10 @@
 from campusflow.queue import get_work_queue
 from campusflow.reports import generate_ticket_report
+from campusflow.search import search_tickets
 from campusflow.storage import load_tickets, save_tickets
 from campusflow.tickets import create_ticket, VALID_CATEGORIES
 from campusflow.workflow import assign_ticket, update_ticket_status
-
+from campusflow.quiz import run_quiz
 
 DATA_FILE = "tickets.json"
 
@@ -42,7 +43,49 @@ def view_ticket(tickets):
     if ticket is None:
         print("Ticket not found.")
         return
+
     display_ticket(ticket)
+
+
+def search_existing_tickets(tickets):
+    """Search tickets using optional filters."""
+    print("\n--- Search Tickets ---")
+    print("Leave a filter blank to ignore it.")
+
+    keyword = input("Title keyword: ").strip()
+
+    print("Categories:", ", ".join(VALID_CATEGORIES))
+    category = input("Category: ").strip()
+    category = category or None
+
+    print("Statuses: open, in_progress, resolved")
+    status = input("Status: ").strip().lower()
+    status = status or None
+
+    print("Priorities: critical, high, medium, low")
+    priority = input("Priority: ").strip().lower()
+    priority = priority or None
+
+    try:
+        results = search_tickets(
+            tickets,
+            keyword=keyword,
+            category=category,
+            status=status,
+            priority=priority,
+        )
+
+        if not results:
+            print("\nNo matching tickets found.")
+            return
+
+        print(f"\nFound {len(results)} matching ticket(s):")
+
+        for ticket in sorted(results, key=lambda item: item["id"]):
+            display_ticket(ticket)
+
+    except ValueError as error:
+        print(f"\nError: {error}")
 
 
 def create_new_ticket(tickets):
@@ -182,6 +225,8 @@ def display_menu():
     print("5. Assign ticket")
     print("6. Update ticket status")
     print("7. View reports")
+    print("8. Search tickets")
+    print("9. Take understanding quiz")
     print("0. Exit")
 
 
@@ -214,11 +259,16 @@ def main():
                 change_ticket_status(tickets)
             elif choice == "7":
                 show_report(tickets)
+            elif choice == "8":
+                search_existing_tickets(tickets)
             elif choice == "0":
                 print("Goodbye!")
                 break
+            elif choice == "9":
+                  run_quiz()
             else:
-                print("Invalid option. Please choose 0–7.")
+                print("Invalid option. Please choose 0–8.")
+
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye!")
             break
