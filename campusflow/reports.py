@@ -3,6 +3,13 @@ STATUSES = ("open", "in_progress", "resolved")
 CATEGORIES = ("Network", "Hardware", "Software", "Other")
 
 
+def calculate_resolution_percentage(total, resolved):
+    """Return the percentage of resolved tickets, avoiding divide-by-zero."""
+    if total <= 0:
+        return 0.0
+    return (resolved / total) * 100.0
+
+
 def generate_ticket_report(tickets):
     """Generate ticket statistics by status, priority, and category."""
 
@@ -31,21 +38,23 @@ def generate_ticket_report(tickets):
             raise ValueError("Each ticket must have a valid status.")
         if priority not in PRIORITIES:
             raise ValueError("Each ticket must have a valid priority.")
-        if category not in CATEGORIES:
+
+        if category is not None and category not in CATEGORIES:
             raise ValueError("Each ticket must have a valid category.")
 
         report["by_status"][status] += 1
         report["by_priority"][priority] += 1
-        report["by_category"][category] += 1
+
+        if category is not None:
+            report["by_category"][category] += 1
 
         if status == "resolved":
             report["resolved"] += 1
         else:
             report["unresolved"] += 1
 
-    if report["total"] > 0:
-        report["resolution_percentage"] = (
-            report["resolved"] / report["total"]
-        ) * 100
+    report["resolution_percentage"] = calculate_resolution_percentage(
+        report["total"], report["resolved"]
+    )
 
     return report

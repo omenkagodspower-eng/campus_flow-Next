@@ -193,8 +193,12 @@ class TestMainMenuChoices(unittest.TestCase):
             main.main()
 
         output = "\n".join(str(c.args[0]) for c in printed.call_args_list)
-        for entry in ("Search tickets", "Add follow-up note",
-                      "View ticket notes", "Engineering Understanding Check"):
+        for entry in (
+            "Search tickets",
+            "Add follow-up note",
+            "View ticket notes",
+            "Engineering Understanding Check",
+        ):
             self.assertIn(entry, output)
 
 

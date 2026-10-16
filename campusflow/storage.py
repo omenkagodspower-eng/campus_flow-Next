@@ -185,45 +185,45 @@ def validate_tickets(tickets):
                     "Assigned staff member must be a nonempty name or None."
                 )
 
-        # Every ticket must have a notes list.
         notes = ticket.get("notes")
 
-        if not isinstance(notes, list):
-            raise ValueError("Ticket notes must be a list.")
+        if notes is not None:
+            if not isinstance(notes, list):
+                raise ValueError("Ticket notes must be a list.")
 
-        seen_note_ids = set()
+            seen_note_ids = set()
 
-        for note in notes:
-            if not isinstance(note, dict):
-                raise ValueError("Each note must be a dictionary.")
+            for note in notes:
+                if not isinstance(note, dict):
+                    raise ValueError("Each note must be a dictionary.")
 
-            note_id = note.get("note_id")
+                note_id = note.get("note_id")
 
-            if (
-                not isinstance(note_id, str)
-                or re.fullmatch(r"N\d{3,}", note_id) is None
-                or int(note_id[1:]) < 1
-            ):
-                raise ValueError("Each note must have a valid note ID.")
+                if (
+                    not isinstance(note_id, str)
+                    or re.fullmatch(r"N\d{3,}", note_id) is None
+                    or int(note_id[1:]) < 1
+                ):
+                    raise ValueError("Each note must have a valid note ID.")
 
-            if note_id in seen_note_ids:
-                raise ValueError(f"Duplicate note ID found: {note_id}")
+                if note_id in seen_note_ids:
+                    raise ValueError(f"Duplicate note ID found: {note_id}")
 
-            seen_note_ids.add(note_id)
+                seen_note_ids.add(note_id)
 
-            author = note.get("author")
-            message = note.get("message")
+                author = note.get("author")
+                message = note.get("message")
 
-            if not isinstance(author, str) or not author.strip():
-                raise ValueError("Each note must have a nonempty author.")
+                if not isinstance(author, str) or not author.strip():
+                    raise ValueError("Each note must have a nonempty author.")
 
-            if not isinstance(message, str):
-                raise ValueError("Each note message must be text.")
+                if not isinstance(message, str):
+                    raise ValueError("Each note message must be text.")
 
-            if not 5 <= len(message.strip()) <= 300:
-                raise ValueError(
-                    "Each note message must contain between 5 and 300 characters."
-                )
+                if not 5 <= len(message.strip()) <= 300:
+                    raise ValueError(
+                        "Each note message must contain between 5 and 300 characters."
+                    )
 
         _validate_ticket_record(ticket)
 
@@ -263,13 +263,6 @@ def load_tickets(filename="tickets.json"):
         raise ValueError(
             f"Invalid JSON in {path}: {error}"
         ) from error
-
-    # Support older records that predate the notes feature.
-    # Only add an empty notes list when the field is absent.
-    if isinstance(tickets, list):
-        for ticket in tickets:
-            if isinstance(ticket, dict) and "notes" not in ticket:
-                ticket["notes"] = []
 
     validate_tickets(tickets)
 

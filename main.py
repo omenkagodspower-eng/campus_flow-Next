@@ -1,11 +1,18 @@
 from campusflow.notes import add_note, get_notes
 from campusflow.queue import get_work_queue
 from campusflow.reports import generate_ticket_report
-from campusflow.search import search_tickets
+from campusflow.search import VALID_PRIORITIES, search_tickets
 from campusflow.storage import load_tickets, save_tickets
-from campusflow.tickets import create_ticket, VALID_CATEGORIES
+from campusflow.tickets import create_ticket, VALID_CATEGORIES, calculate_priority
 from campusflow.workflow import assign_ticket, update_ticket_status
-from campusflow.quiz import run_quiz
+from campusflow.understanding_check import (
+    format_question,
+    is_correct,
+    parse_choice,
+    score_answers,
+)
+from campusflow.understanding_questions import QUESTIONS
+from campusflow.validation import VALID_STATUSES
 
 DATA_FILE = "tickets.json"
 LEARNING_NOTE_FILE = "learning-note.md"
@@ -116,12 +123,41 @@ def parse_note_message(raw):
     return message
 
 
+def normalise_choice(raw, valid_options):
+    """Accept optional blank values and validate the cleaned choice."""
+    text = raw.strip()
+
+    if text == "":
+        return None
+
+    choice = text.lower()
+    options = {option.lower(): option for option in valid_options}
+
+    if choice not in options:
+        raise ValueError("Must be one of: " + ", ".join(valid_options) + ".")
+
+    return options[choice]
+
+
 def make_filter_parser(valid_options):
     """Build a parser for an optional filter: blank means 'any'."""
     def parse(raw):
         return normalise_choice(raw, valid_options)
 
     return parse
+
+
+def sort_by_priority(tickets):
+    """Return tickets ordered by the project priority ranking."""
+    return sorted(
+        tickets,
+        key=lambda ticket: (VALID_PRIORITIES.index(ticket["priority"]), ticket["id"]),
+    )
+
+
+def format_ticket_row(ticket):
+    """Return a compact one-line summary for a ticket."""
+    return f"#{ticket['id']} | {ticket['title']}"
 
 
 def make_ticket_id_parser(tickets):
@@ -516,7 +552,9 @@ def display_menu():
     print("6. Update ticket status")
     print("7. View reports")
     print("8. Search tickets")
-    print("9. Take understanding quiz")
+    print("9. Engineering Understanding Check")
+    print("10. Add follow-up note")
+    print("11. View ticket notes")
     print("0. Exit")
 
 
@@ -551,13 +589,21 @@ def main():
                 show_report(tickets)
             elif choice == "8":
                 search_existing_tickets(tickets)
+            elif choice == "9":
+                run_understanding_check()
+            elif choice == "10":
+                add_followup_note(tickets)
+            elif choice == "11":
+                view_ticket_notes(tickets)
             elif choice == "0":
                 print("Goodbye!")
                 break
-            elif choice == "9":
-                  run_quiz()
+
             else:
-                print("Invalid option. Please choose 0–8.")
+                print("Invalid option. Please choose a valid menu option.")
+
+        except CancelledInput:
+            print("\nCancelled. Returning to the main menu.")
 
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye!")
